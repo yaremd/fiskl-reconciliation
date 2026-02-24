@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeft, ArrowLeft, ChevronRight, Eye, EyeOff, Sun } from "lucide-react";
+import { ArrowLeft, ChevronRight, Eye, EyeOff, Sun } from "lucide-react";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { BRAND_GRADIENT } from "@/lib/utils";
 
 interface SiteHeaderProps {
-  collapsed: boolean;
-  onToggleCollapse: () => void;
   accountId?: string;
   periodId?: string;
 }
@@ -25,7 +24,7 @@ const TABS = [
   { label: "Report",               href: null },
 ];
 
-export function SiteHeader({ collapsed, onToggleCollapse, accountId, periodId }: SiteHeaderProps) {
+export function SiteHeader({ accountId, periodId }: SiteHeaderProps) {
   const [privacy, setPrivacy] = useState(false);
   const pathname = usePathname();
 
@@ -47,15 +46,10 @@ export function SiteHeader({ collapsed, onToggleCollapse, accountId, periodId }:
   return (
     <TooltipProvider>
       <header className="h-14 flex items-center px-4 pl-2 border-b border-border bg-background sticky top-0 z-20 flex-shrink-0 gap-0">
-        {/* Left: toggle + breadcrumb */}
+        {/* Left: sidebar trigger + breadcrumb */}
         <div className="flex items-center gap-1 flex-1 min-w-0">
-          <button
-            onClick={onToggleCollapse}
-            className="p-2 bg-transparent border-none rounded-[var(--radius)] cursor-pointer text-foreground hover:bg-accent transition-colors"
-          >
-            <PanelLeft size={18} />
-          </button>
-          <Separator orientation="vertical" className="h-4" />
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="h-4 mx-1" />
           <nav className="flex items-center gap-1 text-sm min-w-0">
             <Link
               href="/reconciliation"
