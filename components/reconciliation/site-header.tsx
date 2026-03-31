@@ -28,6 +28,11 @@ export function SiteHeader({ accountId, periodId }: SiteHeaderProps) {
   const [privacy, setPrivacy] = useState(false);
   const pathname = usePathname();
 
+  const isFixedAssets = pathname.startsWith("/fixed-assets");
+  const isFixedAssetsNew = pathname === "/fixed-assets/new";
+  const isFixedAssetsEdit = /^\/fixed-assets\/[^/]+\/edit$/.test(pathname);
+  const fixedAssetsSubPage = isFixedAssetsNew ? "New Asset" : isFixedAssetsEdit ? "Edit Asset" : null;
+
   // Build per-tab hrefs given the current context
   const tabHrefs = [
     "/reconciliation",
@@ -52,20 +57,33 @@ export function SiteHeader({ accountId, periodId }: SiteHeaderProps) {
           <Separator orientation="vertical" className="h-4 mx-1" />
           <nav className="flex items-center gap-1 text-sm min-w-0">
             <Link
-              href="/reconciliation"
+              href={isFixedAssets ? "/fixed-assets" : "/reconciliation"}
               className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground no-underline font-medium px-1.5 py-1 rounded-[var(--radius)] flex-shrink-0 transition-colors"
             >
-              <ArrowLeft size={14} />
               <span>Accounting</span>
             </Link>
             <ChevronRight size={13} className="text-muted-foreground flex-shrink-0" />
-            <span className="text-sm font-semibold text-foreground truncate">
-              Reconciliation
-            </span>
+            {fixedAssetsSubPage ? (
+              <>
+                <Link
+                  href="/fixed-assets"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground no-underline px-1.5 py-1 rounded-[var(--radius)] flex-shrink-0 transition-colors"
+                >
+                  Fixed Assets
+                </Link>
+                <ChevronRight size={13} className="text-muted-foreground flex-shrink-0" />
+                <span className="text-sm font-semibold text-foreground truncate">{fixedAssetsSubPage}</span>
+              </>
+            ) : (
+              <span className="text-sm font-semibold text-foreground truncate">
+                {isFixedAssets ? "Fixed Assets" : "Reconciliation"}
+              </span>
+            )}
           </nav>
         </div>
 
-        {/* Center: workflow tabs */}
+        {/* Center: workflow tabs — reconciliation only */}
+        {!isFixedAssets && (
         <div className="flex gap-px bg-muted rounded-[var(--radius)] p-[3px] flex-shrink-0">
           {TABS.map((tab, i) => {
             const href = tabHrefs[i];
@@ -88,6 +106,7 @@ export function SiteHeader({ accountId, periodId }: SiteHeaderProps) {
             );
           })}
         </div>
+        )}
 
         {/* Right: actions */}
         <div className="flex items-center gap-1.5 flex-1 justify-end flex-shrink-0">

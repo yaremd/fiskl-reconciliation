@@ -37,7 +37,7 @@ const NAV: MenuItem[] = [
     title: "Purchases", url: "#", icon: ShoppingCart,
     submenu: [
       { title: "Time", url: "#" },
-      { title: "Mileage", url: "#" },
+      { title: "Mileage", url: "/mileage" },
       { title: "Vendors", url: "#" },
       { title: "Expenses", url: "#" },
       { title: "AI Expenses", url: "#" },
@@ -51,6 +51,7 @@ const NAV: MenuItem[] = [
       { title: "Multi Journal", url: "#" },
       { title: "Transactions", url: "#" },
       { title: "Reconciliation", url: "/reconciliation" },
+      { title: "Fixed Assets", url: "/fixed-assets" },
     ],
   },
   { title: "Products & Services", url: "#", icon: Package },

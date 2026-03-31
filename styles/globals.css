@@ -162,6 +162,12 @@
   }
 }
 
+/* Hide native date picker indicator, replaced with Lucide Calendar icon */
+input[type="date"].date-lucide::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+}
+
 /* Remove number input spinners */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
