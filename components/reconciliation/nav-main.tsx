@@ -27,7 +27,7 @@ const NAV: MenuItem[] = [
   {
     title: "Sales", url: "#", icon: ShoppingBag,
     submenu: [
-      { title: "Invoices", url: "#" },
+      { title: "Invoices", url: "/invoices" },
       { title: "Recurring Invoices", url: "#" },
       { title: "Quotes", url: "#" },
       { title: "Clients", url: "#" },
