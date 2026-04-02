@@ -23,6 +23,14 @@ interface InvoiceLineItemsProps {
 
 const TAX_RATES = [0, 5, 10, 20, 25];
 
+const LINE_ITEM_ACCENT: Record<LineItemType, string> = {
+  Product: "border-l-blue-400",
+  Service: "border-l-purple-400",
+  Time:    "border-l-green-400",
+  Mileage: "border-l-orange-400",
+  Expense: "border-l-red-400",
+};
+
 function newItem(): Omit<InvoiceLineItem, "subtotal" | "taxAmount" | "total"> {
   return {
     id: `li_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
@@ -86,7 +94,7 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
       {items.map((item) => (
         <div
           key={item.id}
-          className="rounded-lg border border-border bg-card p-2 space-y-1.5"
+          className={cn("rounded-r-lg border-l-[3px] bg-muted/20 p-2 space-y-1.5", LINE_ITEM_ACCENT[item.type])}
         >
           {/* Row 1: type + name + qty + price + tax + total + delete */}
           <div className="grid gap-1 items-center" style={{ gridTemplateColumns: "16px 110px 1fr 70px 80px 70px 60px 28px" }}>
@@ -95,7 +103,7 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
 
             {/* Type */}
             <Select value={item.type} onValueChange={(v) => changeType(item.id, v as LineItemType)}>
-              <SelectTrigger className="h-7 text-xs px-2">
+              <SelectTrigger className="px-2">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -114,7 +122,6 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
               value={item.name}
               onChange={(e) => updateItem(item.id, { name: e.target.value })}
               placeholder={item.type === "Time" ? "Service description" : item.type === "Mileage" ? "Trip description" : item.type === "Expense" ? "Expense description" : "Item name"}
-              className="h-7 text-xs"
             />
 
             {/* Qty */}
@@ -126,7 +133,7 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
                 value={item.quantity}
                 disabled={item.type === "Expense"}
                 onChange={(e) => updateItem(item.id, { quantity: parseFloat(e.target.value) || 0 })}
-                className="h-7 text-xs pr-6 tabular-nums"
+                className="pr-6 tabular-nums"
               />
               {item.unit && (
                 <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
@@ -137,7 +144,7 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
 
             {/* Price */}
             <div className="relative">
-              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground pointer-events-none">
+              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
                 {currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : ""}
               </span>
               <Input
@@ -146,7 +153,7 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
                 step="any"
                 value={item.price}
                 onChange={(e) => updateItem(item.id, { price: parseFloat(e.target.value) || 0 })}
-                className="h-7 text-xs pl-5 tabular-nums"
+                className="pl-5 tabular-nums"
               />
             </div>
 
@@ -155,7 +162,7 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
               value={String(item.taxRate)}
               onValueChange={(v) => updateItem(item.id, { taxRate: parseFloat(v) })}
             >
-              <SelectTrigger className="h-7 text-xs px-2">
+              <SelectTrigger className="px-2">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -176,7 +183,7 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
             <button
               type="button"
               onClick={() => removeItem(item.id)}
-              className="flex items-center justify-center w-7 h-7 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -188,7 +195,7 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
               value={item.note}
               onChange={(e) => updateItem(item.id, { note: e.target.value })}
               placeholder="Note (optional)"
-              className="h-6 text-xs bg-transparent border-transparent hover:border-border focus:border-border transition-colors"
+              className="bg-transparent border-transparent hover:border-border focus:border-border transition-colors"
             />
           </div>
         </div>

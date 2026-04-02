@@ -64,59 +64,55 @@ export function InvoiceActionBar({
         className="fixed bottom-0 right-0 border-t border-border bg-background/95 backdrop-blur-sm px-4 py-3 flex items-center justify-between z-30"
         style={{ left: `calc(${sidebarOffset} + 1px)` }}
       >
-        {/* Left */}
+        {/* Left: Cancel + Delete */}
         <div className="flex items-center gap-2">
           <Button
             type="button"
-            variant="ghost"
-            size="sm"
+            variant="outline"
             onClick={handleBack}
-            className="h-8 gap-1.5"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back
+            Cancel
           </Button>
           {!isNew && (
             <Button
               type="button"
-              variant="ghost"
-              size="sm"
+              variant="outline"
+              size="icon"
               onClick={() => setShowDeleteDialog(true)}
-              className="h-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           )}
         </div>
 
-        {/* Center: total */}
-        <div className="text-sm font-semibold tabular-nums text-foreground">
-          {fmtCurrency(totals.total, invoice.currency)}
+        {/* Center: total amount — larger */}
+        <div className="flex flex-col items-center">
+          {hasUnsaved && (
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider hidden sm:block">Unsaved</span>
+          )}
+          <div className="text-xl font-bold tabular-nums text-foreground">
+            {fmtCurrency(totals.total, invoice.currency)}
+          </div>
         </div>
 
-        {/* Right */}
+        {/* Right: Save + Send */}
         <div className="flex items-center gap-2">
-          {hasUnsaved && (
-            <span className="text-[11px] text-muted-foreground hidden sm:block">Unsaved changes</span>
-          )}
           <Button
             type="button"
-            variant="outline"
-            size="sm"
+            variant="secondary"
             onClick={onSave}
             disabled={saving}
-            className="h-8"
           >
             {saving ? "Saving…" : "Save"}
           </Button>
           <Button
             type="button"
-            size="sm"
             onClick={onSend}
             disabled={saving || !invoice.clientName}
-            className="h-8 gap-1.5"
+            className="gap-1.5"
           >
-            <Send className="h-3.5 w-3.5" />
+            <Send className="h-4 w-4" />
             {invoice.status === "Open" ? "Send" : "Re-send"}
           </Button>
         </div>

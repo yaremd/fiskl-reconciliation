@@ -3,6 +3,7 @@
 import { Play, Pause, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -61,21 +62,20 @@ export function InvoiceRecurring({ schedule, onChange }: InvoiceRecurringProps) 
         <div className="space-y-3">
           {/* Frequency */}
           <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-[11px]">Every</Label>
+            <div className="space-y-1.5">
+              <Label>Every</Label>
               <Input
                 type="number"
                 min={1}
                 max={52}
                 value={schedule.every}
                 onChange={(e) => update({ every: parseInt(e.target.value) || 1 })}
-                className="h-7 text-xs"
               />
             </div>
-            <div className="space-y-1">
-              <Label className="text-[11px]">Period</Label>
+            <div className="space-y-1.5">
+              <Label>Period</Label>
               <Select value={schedule.period} onValueChange={(v) => update({ period: v as RecurringPeriod })}>
-                <SelectTrigger className="h-7 text-xs">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -89,23 +89,21 @@ export function InvoiceRecurring({ schedule, onChange }: InvoiceRecurringProps) 
 
           {/* Remaining + End Date */}
           <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-[11px]">Invoices remaining</Label>
+            <div className="space-y-1.5">
+              <Label>Invoices remaining</Label>
               <Input
                 type="number"
                 min={1}
                 value={schedule.remaining}
                 onChange={(e) => update({ remaining: parseInt(e.target.value) || 1 })}
-                className="h-7 text-xs"
               />
             </div>
-            <div className="space-y-1">
-              <Label className="text-[11px]">End date (optional)</Label>
-              <Input
-                type="date"
+            <div className="space-y-1.5">
+              <Label>End date (optional)</Label>
+              <DatePicker
                 value={schedule.endDate ?? ""}
-                onChange={(e) => update({ endDate: e.target.value || null })}
-                className="h-7 text-xs"
+                onChange={(v) => update({ endDate: v || null })}
+                placeholder="No end date"
               />
             </div>
           </div>

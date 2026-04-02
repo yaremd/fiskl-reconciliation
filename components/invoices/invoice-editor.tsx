@@ -11,6 +11,7 @@ import {
   generateShareToken,
 } from "@/lib/invoices/invoice-store";
 import type { Invoice } from "@/types/invoices";
+import { Separator } from "@/components/ui/separator";
 import { InvoicePreview } from "./invoice-preview";
 import { InvoiceEditSection } from "./invoice-edit-section";
 import { InvoiceActionBar } from "./invoice-action-bar";
@@ -71,7 +72,7 @@ export function InvoiceEditor({ id }: InvoiceEditorProps) {
   const [saving, setSaving] = useState(false);
 
   // Resizable panel state
-  const [leftPct, setLeftPct] = useState(55);
+  const [leftPct, setLeftPct] = useState(50);
   const isDragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -168,22 +169,8 @@ export function InvoiceEditor({ id }: InvoiceEditorProps) {
         className="flex overflow-hidden"
         style={{ height: SPLIT_HEIGHT }}
       >
-        {/* Left: preview */}
-        <div style={{ width: `${leftPct}%` }} className="min-w-0 overflow-hidden">
-          <InvoicePreview invoice={invoice} />
-        </div>
-
-        {/* Drag handle */}
-        <div
-          onMouseDown={onMouseDown}
-          className="w-1 shrink-0 cursor-col-resize bg-border hover:bg-primary/40 transition-colors active:bg-primary/60"
-        />
-
-        {/* Right: editor */}
-        <div
-          style={{ width: `${100 - leftPct}%` }}
-          className="min-w-0 overflow-y-auto bg-background"
-        >
+        {/* Left: editor */}
+        <div style={{ width: `${leftPct}%` }} className="min-w-0 overflow-y-auto bg-background">
           <div className="p-4">
             <InvoiceEditSection
               invoice={invoice}
@@ -191,6 +178,25 @@ export function InvoiceEditor({ id }: InvoiceEditorProps) {
               onChange={handleChange}
             />
           </div>
+        </div>
+
+        {/* Drag handle — separator always visible, grip only on hover */}
+        <div
+          onMouseDown={onMouseDown}
+          className="group relative w-4 shrink-0 cursor-col-resize flex items-center justify-center"
+        >
+          <Separator orientation="vertical" className="h-full" />
+          <div className="absolute flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+            <div className="w-1 h-1 rounded-full bg-muted-foreground/60" />
+            <div className="w-1 h-1 rounded-full bg-muted-foreground/60" />
+            <div className="w-1 h-1 rounded-full bg-muted-foreground/60" />
+            <div className="w-1 h-1 rounded-full bg-muted-foreground/60" />
+          </div>
+        </div>
+
+        {/* Right: preview — fixed, non-scrolling */}
+        <div style={{ width: `${100 - leftPct}%` }} className="min-w-0 h-full overflow-hidden sticky top-0">
+          <InvoicePreview invoice={invoice} />
         </div>
       </div>
 

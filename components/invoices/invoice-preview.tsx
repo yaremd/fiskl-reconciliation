@@ -28,7 +28,8 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-muted/30 p-6">
+    <div className="h-full overflow-hidden bg-muted/30 p-6 flex flex-col">
+      <div className="flex-1 overflow-y-auto">
       <div className="mx-auto max-w-2xl rounded-xl border border-border bg-white shadow-lg text-[13px] text-gray-800 dark:bg-neutral-900 dark:text-neutral-200">
         {/* Header */}
         <div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-gray-100 dark:border-neutral-800">
@@ -202,6 +203,7 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
             Thank you for your business · {sym} {invoice.currency}
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

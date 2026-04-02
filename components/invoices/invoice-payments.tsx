@@ -5,6 +5,7 @@ import { PlusCircle, Trash2, CheckCircle2, Clock, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -162,8 +163,8 @@ export function InvoicePayments({ invoice, onChange }: InvoicePaymentsProps) {
         <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-3">
           <p className="text-xs font-semibold text-foreground">Record Payment</p>
           <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-[11px]">Amount</Label>
+            <div className="space-y-1.5">
+              <Label>Amount</Label>
               <Input
                 type="number"
                 min={0}
@@ -171,24 +172,18 @@ export function InvoicePayments({ invoice, onChange }: InvoicePaymentsProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder={`Max ${fmtCurrency(amountDue, invoice.currency)}`}
-                className="h-7 text-xs"
                 autoFocus
               />
             </div>
-            <div className="space-y-1">
-              <Label className="text-[11px]">Date</Label>
-              <Input
-                type="date"
-                value={paymentDate}
-                onChange={(e) => setPaymentDate(e.target.value)}
-                className="h-7 text-xs"
-              />
+            <div className="space-y-1.5">
+              <Label>Date</Label>
+              <DatePicker value={paymentDate} onChange={setPaymentDate} />
             </div>
           </div>
-          <div className="space-y-1">
-            <Label className="text-[11px]">Method</Label>
+          <div className="space-y-1.5">
+            <Label>Method</Label>
             <Select value={method} onValueChange={(v) => setMethod(v as PaymentMethod)}>
-              <SelectTrigger className="h-7 text-xs">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -198,21 +193,20 @@ export function InvoicePayments({ invoice, onChange }: InvoicePaymentsProps) {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1">
-            <Label className="text-[11px]">Note (optional)</Label>
+          <div className="space-y-1.5">
+            <Label>Note (optional)</Label>
             <Input
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="e.g. Bank ref #12345"
-              className="h-7 text-xs"
             />
           </div>
           <div className="flex gap-2">
-            <Button type="button" size="sm" className="h-7 text-xs flex-1" onClick={handleAdd}
+            <Button type="button" className="flex-1" onClick={handleAdd}
               disabled={!amount || parseFloat(amount) <= 0}>
               Record Payment
             </Button>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs"
+            <Button type="button" variant="outline"
               onClick={() => setShowAdd(false)}>
               Cancel
             </Button>

@@ -46,8 +46,8 @@ export function InvoiceEmail({
   return (
     <div className="space-y-4">
       {/* Send To */}
-      <div className="space-y-1">
-        <Label className="text-[11px]">Send To</Label>
+      <div className="space-y-1.5">
+        <Label>Send To</Label>
         <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-border bg-muted/30 text-xs text-muted-foreground">
           <Mail className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate">{clientEmail || "No client email set"}</span>
@@ -55,23 +55,22 @@ export function InvoiceEmail({
       </div>
 
       {/* Subject */}
-      <div className="space-y-1">
-        <Label className="text-[11px]">Subject</Label>
+      <div className="space-y-1.5">
+        <Label>Subject</Label>
         <Input
           value={emailSubject}
           onChange={(e) => onSubjectChange(e.target.value)}
-          className="h-7 text-xs"
           placeholder="Invoice subject line"
         />
       </div>
 
       {/* Message */}
-      <div className="space-y-1">
-        <Label className="text-[11px]">Message</Label>
+      <div className="space-y-1.5">
+        <Label>Message</Label>
         <Textarea
           value={emailMessage}
           onChange={(e) => onMessageChange(e.target.value)}
-          className="text-xs min-h-[72px] resize-none"
+          className="min-h-[80px] resize-none"
           placeholder="Email body…"
         />
       </div>
@@ -80,7 +79,7 @@ export function InvoiceEmail({
       <div className="space-y-2">
         <div className="flex items-center gap-1.5">
           <Bell className="h-3.5 w-3.5 text-muted-foreground" />
-          <Label className="text-[11px]">Overdue reminders</Label>
+          <Label>Overdue reminders</Label>
         </div>
         <div className="flex flex-wrap gap-2">
           {OVERDUE_OPTIONS.map((days) => {
