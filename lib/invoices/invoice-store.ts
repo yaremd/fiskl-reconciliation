@@ -1,7 +1,7 @@
-import type { Invoice } from "@/types/invoices";
+import type { Invoice, InvoiceStatus } from "@/types/invoices";
 import { MOCK_INVOICES } from "./mock-data";
 
-const STORAGE_KEY = "fiskl_invoices";
+const STORAGE_KEY = "fiskl_invoices_v2";
 
 function seed(): void {
   if (typeof window === "undefined") return;
@@ -41,6 +41,28 @@ export function deleteInvoices(ids: string[]): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
 }
 
+export function bulkUpdateStatus(ids: string[], status: InvoiceStatus): void {
+  const all = getInvoices().map((inv) =>
+    ids.includes(inv.id)
+      ? {
+          ...inv,
+          status,
+          updatedAt: new Date().toISOString(),
+          history: [
+            ...inv.history,
+            {
+              id: `h_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+              date: new Date().toISOString(),
+              action: `Status changed to ${status}`,
+              by: "You",
+            },
+          ],
+        }
+      : inv
+  );
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
 export function generateInvoiceId(): string {
   return `inv_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -52,4 +74,8 @@ export function generateInvoiceNumber(): string {
     return isNaN(n) ? acc : Math.max(acc, n);
   }, 0);
   return `INV-${String(max + 1).padStart(3, "0")}`;
+}
+
+export function generateShareToken(): string {
+  return `tok_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }

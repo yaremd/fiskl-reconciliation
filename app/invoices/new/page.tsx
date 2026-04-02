@@ -1,5 +1,5 @@
-import { InvoiceForm } from "@/components/invoices/invoice-form";
+import { InvoiceEditor } from "@/components/invoices/invoice-editor";
 
 export default function NewInvoicePage() {
-  return <InvoiceForm />;
+  return <InvoiceEditor />;
 }

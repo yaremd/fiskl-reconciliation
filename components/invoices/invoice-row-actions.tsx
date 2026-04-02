@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Pencil, Trash2, Copy } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Copy, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,15 +21,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { saveInvoice, generateInvoiceId, generateInvoiceNumber } from "@/lib/invoices/invoice-store";
+import {
+  saveInvoice,
+  deleteInvoices,
+  generateInvoiceId,
+  generateInvoiceNumber,
+  generateShareToken,
+} from "@/lib/invoices/invoice-store";
 import type { Invoice } from "@/types/invoices";
 
 interface InvoiceRowActionsProps {
   invoice: Invoice;
-  onDelete: (id: string) => void;
+  onDeleted: () => void;
+  onDuplicated: () => void;
 }
 
-export function InvoiceRowActions({ invoice, onDelete }: InvoiceRowActionsProps) {
+export function InvoiceRowActions({ invoice, onDeleted, onDuplicated }: InvoiceRowActionsProps) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -39,11 +46,45 @@ export function InvoiceRowActions({ invoice, onDelete }: InvoiceRowActionsProps)
       id: generateInvoiceId(),
       number: generateInvoiceNumber(),
       status: "Open",
+      payments: [],
+      history: [
+        {
+          id: `h_${Date.now()}`,
+          date: new Date().toISOString(),
+          action: `Duplicated from ${invoice.number}`,
+          by: "You",
+        },
+      ],
+      shareToken: generateShareToken(),
       createdAt: new Date().toISOString(),
-      lineItems: invoice.lineItems.map((li) => ({ ...li, id: `li_${Date.now()}_${Math.random().toString(36).slice(2,6)}` })),
+      updatedAt: new Date().toISOString(),
+      lineItems: invoice.lineItems.map((li) => ({
+        ...li,
+        id: `li_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      })),
     };
     saveInvoice(newInvoice);
+    onDuplicated();
     router.push(`/invoices/${newInvoice.id}/edit`);
+  }
+
+  function handleMarkSent() {
+    const updated: Invoice = {
+      ...invoice,
+      status: "Sent",
+      updatedAt: new Date().toISOString(),
+      history: [
+        ...invoice.history,
+        {
+          id: `h_${Date.now()}`,
+          date: new Date().toISOString(),
+          action: "Marked as Sent",
+          by: "You",
+        },
+      ],
+    };
+    saveInvoice(updated);
+    onDeleted(); // refresh
   }
 
   return (
@@ -63,6 +104,12 @@ export function InvoiceRowActions({ invoice, onDelete }: InvoiceRowActionsProps)
             <Copy className="mr-2 h-3.5 w-3.5" />
             Duplicate
           </DropdownMenuItem>
+          {invoice.status === "Open" && (
+            <DropdownMenuItem onClick={handleMarkSent}>
+              <Send className="mr-2 h-3.5 w-3.5" />
+              Mark as Sent
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive"
@@ -79,14 +126,18 @@ export function InvoiceRowActions({ invoice, onDelete }: InvoiceRowActionsProps)
           <AlertDialogHeader>
             <AlertDialogTitle>Delete {invoice.number}?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the invoice for {invoice.clientName}. This action cannot be undone.
+              This will permanently delete the invoice for {invoice.clientName || "this client"}. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => { setConfirmOpen(false); onDelete(invoice.id); }}
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => {
+                setConfirmOpen(false);
+                deleteInvoices([invoice.id]);
+                onDeleted();
+              }}
             >
               Delete
             </AlertDialogAction>
