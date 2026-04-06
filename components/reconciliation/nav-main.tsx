@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  ChevronRight, Home, Package, PieChart,
+  ChevronRight, Home, Package, PieChart, Settings,
   ShoppingBag, ShoppingCart, Users, Wallet, type LucideIcon,
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -12,7 +12,6 @@ import {
   SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { BRAND_GRADIENT } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 interface MenuItem {
@@ -27,7 +26,7 @@ const NAV: MenuItem[] = [
   {
     title: "Sales", url: "#", icon: ShoppingBag,
     submenu: [
-      { title: "Invoices", url: "#" },
+      { title: "Invoices", url: "/invoices" },
       { title: "Recurring Invoices", url: "#" },
       { title: "Quotes", url: "#" },
       { title: "Clients", url: "#" },
@@ -57,6 +56,18 @@ const NAV: MenuItem[] = [
   { title: "Products & Services", url: "#", icon: Package },
   { title: "Banking", url: "#", icon: Wallet },
   { title: "Team Members", url: "#", icon: Users },
+  {
+    title: "Settings", url: "/settings/accounting", icon: Settings,
+    submenu: [
+      { title: "Company Profile", url: "/settings/company" },
+      { title: "Accounting", url: "/settings/accounting" },
+      { title: "Currency Management", url: "/settings/currencies" },
+      { title: "Tax Management", url: "/settings/taxes" },
+      { title: "Invoice & Quote Settings", url: "/settings/invoices" },
+      { title: "Account", url: "/settings/account" },
+      { title: "Preferences", url: "/settings/preferences" },
+    ],
+  },
 ];
 
 export function NavMain() {
@@ -81,17 +92,15 @@ export function NavMain() {
       <SidebarGroupContent className="flex flex-col gap-2">
         {/* Logo */}
         <div className="px-2 pb-1">
-          <div className="flex items-end gap-0">
-            <div
-              style={{ background: BRAND_GRADIENT }}
-              className="w-7 h-7 rounded-[7px] flex items-center justify-center text-white font-extrabold text-[13px] flex-shrink-0"
-            >
-              F
-            </div>
-            {state !== "collapsed" && (
-              <div className="flex flex-col min-w-0 flex-1 ml-2 mb-0.5 group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-bold text-sidebar-foreground leading-tight">Fiskl</span>
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[.06em]">Pro Plan</span>
+          <div className="flex items-center gap-0">
+            {state === "collapsed" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src="/fiskl-mark.svg" alt="fiskl" className="w-7 h-7" />
+            ) : (
+              <div className="flex flex-col gap-0.5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/fiskl-logo.svg" alt="fiskl" className="h-6 w-auto" />
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[.06em] pl-0.5">Pro Plan</span>
               </div>
             )}
           </div>
