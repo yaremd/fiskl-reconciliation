@@ -171,7 +171,7 @@ export function InvoiceEditor({ id }: InvoiceEditorProps) {
       >
         {/* Left: editor */}
         <div style={{ width: `${leftPct}%` }} className="min-w-0 overflow-y-auto bg-background">
-          <div className="p-4">
+          <div className="px-4 pt-4">
             <InvoiceEditSection
               invoice={invoice}
               isNew={isNew}
@@ -183,7 +183,7 @@ export function InvoiceEditor({ id }: InvoiceEditorProps) {
         {/* Drag handle — separator always visible, grip only on hover */}
         <div
           onMouseDown={onMouseDown}
-          className="group relative w-4 shrink-0 cursor-col-resize flex items-center justify-center"
+          className="group relative w-4 shrink-0 cursor-col-resize flex items-center justify-center bg-gradient-to-r from-background to-muted"
         >
           <Separator orientation="vertical" className="h-full" />
           <div className="absolute flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
@@ -194,8 +194,8 @@ export function InvoiceEditor({ id }: InvoiceEditorProps) {
           </div>
         </div>
 
-        {/* Right: preview — fixed, non-scrolling */}
-        <div style={{ width: `${100 - leftPct}%` }} className="min-w-0 h-full overflow-hidden sticky top-0">
+        {/* Right: preview */}
+        <div style={{ width: `${100 - leftPct}%` }} className="min-w-0 h-full">
           <InvoicePreview invoice={invoice} />
         </div>
       </div>

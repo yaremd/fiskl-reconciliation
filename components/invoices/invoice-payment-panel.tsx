@@ -2,27 +2,100 @@
 
 import { useState, useCallback } from "react";
 import type { Invoice } from "@/types/invoices";
-import { calcInvoiceTotals, calcAmountDue, fmtCurrency } from "@/types/invoices";
-import { Copy, Check, Pencil, AlertCircle, CheckCircle2 } from "lucide-react";
+import { calcInvoiceTotals, calcAmountDue, fmtCurrency, CURRENCY_SYMBOLS } from "@/types/invoices";
+import { Copy, Check, Pencil, AlertCircle, CheckCircle2, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
+// ─── Payment method logos ──────────────────────────────────────────────────────
+
+function IdealLogo() {
+  return (
+    <svg width="48" height="20" viewBox="0 0 48 20" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="15" fontFamily="Arial, Helvetica, sans-serif" fontWeight="900" fontSize="16" fill="#CC0066">i</text>
+      <text x="10" y="15" fontFamily="Arial, Helvetica, sans-serif" fontWeight="700" fontSize="15" fill="#000000">DEAL</text>
+    </svg>
+  );
+}
+
+function VisaLogo() {
+  return (
+    <svg width="44" height="16" viewBox="0 0 44 16" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="14" fontFamily="Arial, Helvetica, sans-serif" fontWeight="900" fontSize="15" fontStyle="italic" letterSpacing="-0.5" fill="#1A1F71">VISA</text>
+    </svg>
+  );
+}
+
+function MastercardLogo() {
+  return (
+    <svg width="36" height="22" viewBox="0 0 36 22" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="13" cy="11" r="10" fill="#EB001B" />
+      <circle cx="23" cy="11" r="10" fill="#F79E1B" />
+      <path d="M18 3.8 C20.8 6 22 8.4 22 11 C22 13.6 20.8 16 18 18.2 C15.2 16 14 13.6 14 11 C14 8.4 15.2 6 18 3.8Z" fill="#FF5F00" />
+    </svg>
+  );
+}
+
+function PayPalLogo() {
+  return (
+    <svg width="56" height="18" viewBox="0 0 56 18" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="14" fontFamily="Arial, Helvetica, sans-serif" fontWeight="700" fontSize="14" fill="#003087">Pay</text>
+      <text x="24" y="14" fontFamily="Arial, Helvetica, sans-serif" fontWeight="700" fontSize="14" fill="#009CDE">Pal</text>
+    </svg>
+  );
+}
+
+function GoCardlessLogo() {
+  return (
+    <span className="text-[13px] font-bold leading-none tracking-tight" style={{ color: "#1B2B4B" }}>
+      Go<span style={{ color: "#00B56A" }}>Card</span>less
+    </span>
+  );
+}
+
+function GooglePayLogo() {
+  return (
+    <span className="text-[13px] font-semibold leading-none">
+      <span style={{ color: "#4285F4", fontWeight: 700 }}>G</span>
+      <span style={{ color: "#34A853", fontWeight: 700 }}>o</span>
+      <span style={{ color: "#FBBC04", fontWeight: 700 }}>o</span>
+      <span style={{ color: "#EA4335", fontWeight: 700 }}>g</span>
+      <span style={{ color: "#4285F4", fontWeight: 700 }}>l</span>
+      <span style={{ color: "#34A853", fontWeight: 700 }}>e</span>
+      <span className="text-foreground/70"> Pay</span>
+    </span>
+  );
+}
+
+function BankTransferLogo() {
+  return (
+    <span className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground">
+      <Building2 size={14} />
+      Bank transfer
+    </span>
+  );
+}
+
 // ─── Payment method definitions ───────────────────────────────────────────────
 
 type MethodId = "ideal" | "card" | "paypal" | "gocardless" | "googlepay" | "bank";
 
-interface PaymentMethod { id: MethodId; label: string; badge: string }
+interface PaymentMethod {
+  id: MethodId;
+  label: string;
+  Logo: () => React.ReactElement;
+}
 
 const METHODS: PaymentMethod[] = [
-  { id: "ideal",      label: "iDEAL",        badge: "iDEAL" },
-  { id: "card",       label: "Credit Card",  badge: "Visa / MC" },
-  { id: "paypal",     label: "PayPal",       badge: "PayPal" },
-  { id: "gocardless", label: "GoCardless",   badge: "Direct debit" },
-  { id: "googlepay",  label: "Google Pay",   badge: "G Pay" },
-  { id: "bank",       label: "Bank Transfer",badge: "SWIFT/ACH" },
+  { id: "ideal",      label: "iDEAL",         Logo: IdealLogo },
+  { id: "card",       label: "Credit Card",   Logo: () => <span className="flex items-center gap-2"><VisaLogo /><MastercardLogo /></span> },
+  { id: "paypal",     label: "PayPal",        Logo: PayPalLogo },
+  { id: "gocardless", label: "GoCardless",    Logo: GoCardlessLogo },
+  { id: "googlepay",  label: "Google Pay",    Logo: GooglePayLogo },
+  { id: "bank",       label: "Bank Transfer", Logo: BankTransferLogo },
 ];
 
 const BANK_DETAILS = [
@@ -58,7 +131,10 @@ function buildSchedule(invoice: Invoice): ScheduleItem[] {
 function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(value).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); });
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
   }, [value]);
   return (
     <button
@@ -74,10 +150,10 @@ function CopyButton({ value }: { value: string }) {
 // ─── Radio option ─────────────────────────────────────────────────────────────
 
 function RadioOption({
-  id, label, subtitle, amount, currency, selected, onSelect,
+  id, label, subtitle, amount, currency, selected, onSelect, hideAmount,
 }: {
   id: string; label: string; subtitle: string; amount: number;
-  currency: string; selected: boolean; onSelect: () => void;
+  currency: string; selected: boolean; onSelect: () => void; hideAmount?: boolean;
 }) {
   return (
     <button
@@ -89,27 +165,26 @@ function RadioOption({
           : "border-border bg-background hover:bg-accent/50"
       )}
     >
-      {/* Radio circle */}
       <div className={cn(
         "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors",
         selected ? "border-primary" : "border-muted-foreground/50"
       )}>
         {selected && <div className="w-2 h-2 rounded-full bg-primary" />}
       </div>
-      {/* Label */}
       <div className="flex-1 min-w-0">
         <div className={cn("text-sm font-semibold leading-tight", selected ? "text-foreground" : "text-foreground/80")}>
           {label}
         </div>
         <div className="text-xs text-muted-foreground mt-0.5">{subtitle}</div>
       </div>
-      {/* Amount */}
-      <span className={cn(
-        "text-sm font-bold tabular-nums financial-number shrink-0",
-        selected ? "text-primary" : "text-muted-foreground"
-      )}>
-        {fmtCurrency(amount, currency)}
-      </span>
+      {!hideAmount && (
+        <span className={cn(
+          "text-sm font-bold tabular-nums financial-number shrink-0",
+          selected ? "text-primary" : "text-muted-foreground"
+        )}>
+          {fmtCurrency(amount, currency)}
+        </span>
+      )}
     </button>
   );
 }
@@ -117,13 +192,14 @@ function RadioOption({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
-  const totals    = calcInvoiceTotals(invoice);
-  const amountDue = calcAmountDue(invoice);
+  const totals     = calcInvoiceTotals(invoice);
+  const amountDue  = calcAmountDue(invoice);
   const amountPaid = totals.total - amountDue;
-  const schedule  = buildSchedule(invoice);
+  const schedule   = buildSchedule(invoice);
+  const currSym    = CURRENCY_SYMBOLS[invoice.currency] ?? invoice.currency + " ";
 
-  // "full" is always the first option and pre-selected
   const [selectedOption, setSelectedOption] = useState<string>("full");
+  const [customAmount, setCustomAmount]     = useState<string>("");
   const [method, setMethod]                 = useState<MethodId | null>(null);
   const [methodsOpen, setMethodsOpen]       = useState(true);
   const [cardForm, setCardForm]             = useState({ number: "", expiry: "", cvv: "", email: "" });
@@ -131,9 +207,12 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
   const [submitted, setSubmitted]           = useState(false);
   const [showError, setShowError]           = useState(false);
 
-  const effectiveAmt = selectedOption === "full"
-    ? amountDue
-    : (schedule.find(s => s.id === selectedOption)?.amount ?? amountDue);
+  const parsedCustom = parseFloat(customAmount.replace(/,/g, "")) || 0;
+
+  const effectiveAmt =
+    selectedOption === "full"   ? amountDue :
+    selectedOption === "custom" ? Math.min(parsedCustom, amountDue) :
+    (schedule.find(s => s.id === selectedOption)?.amount ?? amountDue);
 
   const outstanding = Math.max(0, amountDue - effectiveAmt);
 
@@ -165,10 +244,10 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4">
+    <div className="flex flex-col gap-3">
 
       {/* ── Section 1: Amount due ── */}
-      <div className="rounded-xl border border-border bg-card px-5 pt-4 pb-4 space-y-3">
+      <div className="rounded-xl border border-border bg-card shadow-sm px-5 pt-4 pb-4 space-y-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
             Amount due
@@ -194,16 +273,18 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
       </div>
 
       {/* ── Section 2: Payment options ── */}
-      <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-2.5">
+      <div className="rounded-xl border border-border bg-card shadow-sm px-5 py-4 space-y-2.5">
         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground pb-0.5">
           Pay in installments
         </p>
 
-        {/* Pay in full — always first, pre-selected */}
+        {/* Pay in full */}
         <RadioOption
           id="full"
           label="Pay in full"
-          subtitle={`Due now · ${invoice.dueDate ? new Date(invoice.dueDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : "immediately"}`}
+          subtitle={`Due now · ${invoice.dueDate
+            ? new Date(invoice.dueDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+            : "immediately"}`}
           amount={amountDue}
           currency={invoice.currency}
           selected={selectedOption === "full"}
@@ -224,6 +305,44 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
           />
         ))}
 
+        {/* Custom amount */}
+        <RadioOption
+          id="custom"
+          label="Custom amount"
+          subtitle="Enter the amount you'd like to pay"
+          amount={0}
+          currency={invoice.currency}
+          selected={selectedOption === "custom"}
+          onSelect={() => setSelectedOption("custom")}
+          hideAmount
+        />
+
+        {selectedOption === "custom" && (
+          <div className="px-1 pt-0.5 pb-1">
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground pointer-events-none select-none">
+                {currSym}
+              </span>
+              <Input
+                className="pl-8 text-base font-semibold tabular-nums h-11"
+                placeholder="0.00"
+                inputMode="decimal"
+                value={customAmount}
+                autoFocus
+                onChange={e => {
+                  const raw = e.target.value.replace(/[^0-9.]/g, "");
+                  setCustomAmount(raw);
+                }}
+              />
+              {parsedCustom > amountDue && (
+                <p className="text-xs text-destructive mt-1.5 ml-0.5">
+                  Amount cannot exceed {fmtCurrency(amountDue, invoice.currency)}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Outstanding after this */}
         <div className="flex items-center justify-between rounded-lg bg-muted/50 px-4 py-2.5 mt-1">
           <span className="text-sm text-muted-foreground">Outstanding after this</span>
@@ -237,7 +356,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
       </div>
 
       {/* ── Section 3: Pay with ── */}
-      <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-2">
+      <div className="rounded-xl border border-border bg-card shadow-sm px-5 py-4 space-y-2">
         <div className="flex items-center justify-between pb-0.5">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Pay with
@@ -266,41 +385,40 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
                 )}
               >
                 <span className="text-foreground">{m.label}</span>
-                <span className={cn(
-                  "text-xs font-semibold px-2 py-0.5 rounded-md border",
-                  method === m.id
-                    ? "border-primary/30 bg-primary/10 text-primary"
-                    : "border-border bg-muted text-muted-foreground"
-                )}>
-                  {m.badge}
-                </span>
+                <m.Logo />
               </button>
             ))}
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Selected method row */}
             <button
               onClick={() => setMethodsOpen(true)}
               className="w-full flex items-center justify-between px-3.5 py-3 rounded-xl border-2 border-primary bg-primary/5 text-sm font-medium text-foreground ring-1 ring-primary/20 cursor-pointer"
             >
               <span>{METHODS.find(m => m.id === method)?.label}</span>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-md border border-primary/30 bg-primary/10 text-primary">
-                {METHODS.find(m => m.id === method)?.badge}
-              </span>
+              {(() => { const M = METHODS.find(m => m.id === method); return M ? <M.Logo /> : null; })()}
             </button>
 
+            {/* Card form */}
             {method === "card" && (
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="card-number" className="text-xs text-muted-foreground">Card number</Label>
                   <Input id="card-number" placeholder="1234 5678 9012 3456" value={cardForm.number} maxLength={19}
-                    onChange={e => { const v = e.target.value.replace(/\D/g, "").slice(0, 16); setCardForm(p => ({ ...p, number: v.replace(/(.{4})/g, "$1 ").trim() })); }} />
+                    onChange={e => {
+                      const v = e.target.value.replace(/\D/g, "").slice(0, 16);
+                      setCardForm(p => ({ ...p, number: v.replace(/(.{4})/g, "$1 ").trim() }));
+                    }} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="card-expiry" className="text-xs text-muted-foreground">MM / YY</Label>
                     <Input id="card-expiry" placeholder="12/27" value={cardForm.expiry} maxLength={5}
-                      onChange={e => { const v = e.target.value.replace(/\D/g, "").slice(0, 4); setCardForm(p => ({ ...p, expiry: v.length > 2 ? v.slice(0,2) + "/" + v.slice(2) : v })); }} />
+                      onChange={e => {
+                        const v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                        setCardForm(p => ({ ...p, expiry: v.length > 2 ? v.slice(0, 2) + "/" + v.slice(2) : v }));
+                      }} />
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="card-cvv" className="text-xs text-muted-foreground">CVV</Label>
@@ -316,15 +434,15 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
               </div>
             )}
 
+            {/* Bank transfer */}
             {method === "bank" && (
               <div className="space-y-4">
                 <div className="rounded-lg border border-border bg-muted/50 p-3.5 space-y-2 text-xs text-muted-foreground leading-relaxed">
-                  <p className="font-semibold text-foreground text-sm">Please use this payment method when doing a bank transfer</p>
+                  <p className="font-semibold text-foreground text-sm">Use these details for your bank transfer</p>
                   <ol className="list-decimal list-inside space-y-0.5">
                     <li>Sign into your bank and choose to make a transfer.</li>
-                    <li>The details below are all you need to do the transfer.</li>
-                    <li>Use the copy button to copy values to your clipboard.</li>
-                    <li>Use the invoice number as a reference to help us reconcile.</li>
+                    <li>Enter the details below — copy with the button.</li>
+                    <li>Use the invoice number as reference for reconciliation.</li>
                   </ol>
                 </div>
                 <div className="rounded-lg border border-border divide-y divide-border overflow-hidden">
@@ -340,9 +458,14 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="bank-note" className="text-xs text-muted-foreground">Note for sender</Label>
-                  <Textarea id="bank-note" rows={2}
+                  <Textarea
+                    id="bank-note"
+                    rows={2}
                     placeholder={`Invoice was paid on ${new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })}`}
-                    value={bankNote} onChange={e => setBankNote(e.target.value)} className="resize-none text-sm" />
+                    value={bankNote}
+                    onChange={e => setBankNote(e.target.value)}
+                    className="resize-none text-sm"
+                  />
                 </div>
               </div>
             )}
@@ -351,7 +474,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
       </div>
 
       {/* ── Section 4: Footer / CTA ── */}
-      <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-3">
+      <div className="rounded-xl border border-border bg-card shadow-sm px-5 py-4 space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">Paying today</span>
           <span className="text-2xl font-bold tabular-nums financial-number text-foreground">
@@ -360,15 +483,9 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
         </div>
         <p className="text-xs text-muted-foreground">A single charge with no additional fees.</p>
 
-        {method === "bank" ? (
-          <Button onClick={handleProceed} className="w-full h-11 text-sm">
-            Mark as paid
-          </Button>
-        ) : (
-          <Button onClick={handleProceed} className="w-full h-11 text-sm">
-            Proceed to payment
-          </Button>
-        )}
+        <Button onClick={handleProceed} className="w-full h-11 text-sm">
+          {method === "bank" ? "Mark as paid" : "Proceed to payment"}
+        </Button>
 
         {showError && (
           <div className="flex items-center gap-2 text-xs bg-warning/10 border border-warning/20 rounded-lg px-3 py-2.5">
@@ -380,8 +497,12 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
         <div className="text-center pt-0.5">
           <p className="text-xs text-muted-foreground">
             Interested in billing like this?{" "}
-            <a href="https://fiskl.com" target="_blank" rel="noopener noreferrer"
-              className="text-primary font-medium hover:underline underline-offset-2 transition-colors">
+            <a
+              href="https://fiskl.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary font-medium hover:underline underline-offset-2 transition-colors"
+            >
               Try Fiskl free →
             </a>
           </p>

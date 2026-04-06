@@ -1,10 +1,11 @@
 "use client";
 
-import { PlusCircle, Trash2, GripVertical } from "lucide-react";
+import { PlusCircle, Trash2, GripVertical, Package, Zap, Clock, Car, CreditCard, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import {
   calcLineItem,
@@ -14,6 +15,76 @@ import {
   fmtCurrency,
 } from "@/types/invoices";
 import type { InvoiceLineItem, LineItemType } from "@/types/invoices";
+import * as React from "react";
+
+const TYPE_ICON: Record<LineItemType, React.ReactNode> = {
+  Product: <Package className="h-4 w-4" />,
+  Service: <Zap className="h-4 w-4" />,
+  Time:    <Clock className="h-4 w-4" />,
+  Mileage: <Car className="h-4 w-4" />,
+  Expense: <CreditCard className="h-4 w-4" />,
+};
+
+const TYPE_CHIP_COLORS: Record<LineItemType, string> = {
+  Product: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
+  Service: "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100",
+  Time:    "bg-green-50 text-green-700 border-green-200 hover:bg-green-100",
+  Mileage: "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100",
+  Expense: "bg-red-50 text-red-700 border-red-200 hover:bg-red-100",
+};
+
+const TYPE_OPTION_HOVER: Record<LineItemType, string> = {
+  Product: "hover:bg-blue-50 hover:text-blue-700",
+  Service: "hover:bg-purple-50 hover:text-purple-700",
+  Time:    "hover:bg-green-50 hover:text-green-700",
+  Mileage: "hover:bg-orange-50 hover:text-orange-700",
+  Expense: "hover:bg-red-50 hover:text-red-700",
+};
+
+function TypeChip({ value, onChange }: { value: LineItemType; onChange: (t: LineItemType) => void }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-1.5 px-2 h-9 rounded-md border text-sm font-semibold transition-colors cursor-pointer w-full justify-between",
+            TYPE_CHIP_COLORS[value]
+          )}
+        >
+          <span className="flex items-center gap-1.5">
+            {TYPE_ICON[value]}
+            {value}
+          </span>
+          <svg className="h-3 w-3 opacity-50" viewBox="0 0 12 12" fill="none">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-40 p-1" align="start" sideOffset={4}>
+        {LINE_ITEM_TYPES.map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => { onChange(t); setOpen(false); }}
+            className={cn(
+              "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] font-medium text-foreground transition-colors",
+              TYPE_OPTION_HOVER[t],
+              t === value && "bg-muted"
+            )}
+          >
+            <span className={cn("flex items-center justify-center w-5 h-5 rounded", LINE_ITEM_TYPE_COLORS[t])}>
+              {TYPE_ICON[t]}
+            </span>
+            {t}
+            {t === value && <Check className="h-3 w-3 ml-auto opacity-60" />}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 interface InvoiceLineItemsProps {
   items: InvoiceLineItem[];
@@ -75,7 +146,7 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
     <div className="space-y-2">
       {/* Column headers */}
       {items.length > 0 && (
-        <div className="grid gap-1 px-1" style={{ gridTemplateColumns: "16px 110px 1fr 70px 80px 70px 60px 28px" }}>
+        <div className="grid gap-1 px-1" style={{ gridTemplateColumns: "16px 120px 1fr 90px 90px 90px 90px 28px" }}>
           {["", "Type", "Item / Description", "Qty", "Price", "Tax", "Total", ""].map((h, i) => (
             <div
               key={i}
@@ -94,28 +165,15 @@ export function InvoiceLineItems({ items, currency, onChange }: InvoiceLineItems
       {items.map((item) => (
         <div
           key={item.id}
-          className={cn("rounded-r-lg border-l-[3px] bg-muted/20 p-2 space-y-1.5", LINE_ITEM_ACCENT[item.type])}
+          className="rounded-lg bg-muted/20 p-2 space-y-1.5"
         >
           {/* Row 1: type + name + qty + price + tax + total + delete */}
-          <div className="grid gap-1 items-center" style={{ gridTemplateColumns: "16px 110px 1fr 70px 80px 70px 60px 28px" }}>
+          <div className="grid gap-1 items-center" style={{ gridTemplateColumns: "16px 120px 1fr 90px 90px 90px 90px 28px" }}>
             {/* Drag handle placeholder */}
             <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 cursor-grab" />
 
             {/* Type */}
-            <Select value={item.type} onValueChange={(v) => changeType(item.id, v as LineItemType)}>
-              <SelectTrigger className="px-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LINE_ITEM_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold uppercase", LINE_ITEM_TYPE_COLORS[t])}>
-                      {t}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <TypeChip value={item.type} onChange={(t) => changeType(item.id, t)} />
 
             {/* Name */}
             <Input

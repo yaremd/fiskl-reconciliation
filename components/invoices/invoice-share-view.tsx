@@ -4,7 +4,6 @@ import type { Invoice } from "@/types/invoices";
 import { calcAmountDue, fmtCurrency } from "@/types/invoices";
 import { Download, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { InvoicePreview } from "@/components/invoices/invoice-preview";
 import { InvoicePaymentPanel } from "@/components/invoices/invoice-payment-panel";
 
@@ -89,9 +88,7 @@ export function InvoiceShareView({ invoice }: { invoice: Invoice }) {
 
           {/* Payment panel — sticky alongside the invoice */}
           <div className="w-[360px] xl:w-[380px] shrink-0 sticky top-0 hidden lg:block pt-6">
-            <Card className="shadow-sm">
-              <InvoicePaymentPanel invoice={invoice} />
-            </Card>
+            <InvoicePaymentPanel invoice={invoice} />
           </div>
 
         </div>
