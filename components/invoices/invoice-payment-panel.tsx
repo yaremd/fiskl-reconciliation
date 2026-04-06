@@ -286,7 +286,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
             </span>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="text-sm text-muted-foreground">Invoice total</span>
+            <span className="text-sm text-muted-foreground">Total</span>
             <span className="text-sm font-bold tabular-nums financial-number">
               {fmtCurrency(totals.total, invoice.currency)}
             </span>
@@ -296,6 +296,9 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
 
       {/* ── Section 2: Payment schedule ── */}
       <div className="rounded-xl border border-border bg-card shadow-sm px-5 py-4 space-y-3">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          Select payments
+        </p>
 
         {/* Select all */}
         <div
@@ -410,7 +413,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
 
       {/* ── Section 3: Pay with ── */}
       <div className="rounded-xl border border-border bg-card shadow-sm px-5 py-4 space-y-2">
-        <div className="flex items-center justify-between pb-0.5">
+        <div className="flex items-center justify-between">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Pay with
           </p>
@@ -523,8 +526,11 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
 
       {/* ── Section 4: Footer / CTA ── */}
       <div className="rounded-xl border border-border bg-card shadow-sm px-5 py-4 space-y-3">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          Summary
+        </p>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Paying today</span>
+          <span className="text-sm text-muted-foreground">Amount to pay</span>
           <span className="text-2xl font-bold tabular-nums financial-number text-foreground">
             {fmtCurrency(amountToPay, invoice.currency)}
           </span>
