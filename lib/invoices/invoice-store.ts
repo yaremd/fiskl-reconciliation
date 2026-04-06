@@ -24,6 +24,10 @@ export function getInvoice(id: string): Invoice | null {
   return getInvoices().find((inv) => inv.id === id) ?? null;
 }
 
+export function getInvoiceByToken(token: string): Invoice | null {
+  return getInvoices().find((inv) => inv.shareToken === token) ?? null;
+}
+
 export function saveInvoice(invoice: Invoice): void {
   const all = getInvoices();
   const idx = all.findIndex((inv) => inv.id === invoice.id);

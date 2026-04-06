@@ -2,13 +2,13 @@
 
 import type { Invoice } from "@/types/invoices";
 import { calcInvoiceTotals, fmtCurrency, LINE_ITEM_TYPE_COLORS, CURRENCY_SYMBOLS } from "@/types/invoices";
-import { BRAND_GRADIENT } from "@/lib/utils";
 
 interface InvoicePreviewProps {
   invoice: Invoice;
+  containerClassName?: string;
 }
 
-export function InvoicePreview({ invoice }: InvoicePreviewProps) {
+export function InvoicePreview({ invoice, containerClassName }: InvoicePreviewProps) {
   const totals = calcInvoiceTotals(invoice);
   const sym = CURRENCY_SYMBOLS[invoice.currency] ?? invoice.currency + " ";
 
@@ -28,19 +28,15 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
   }
 
   return (
-    <div className="h-full overflow-hidden bg-muted/30 p-6 flex flex-col">
-      <div className="flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-2xl rounded-xl border border-border bg-white shadow-lg text-[13px] text-gray-800 dark:bg-neutral-900 dark:text-neutral-200">
+    <div className={containerClassName ?? "h-full overflow-y-auto bg-muted"}>
+      <div className="p-6">
+      <div className="mx-auto rounded-xl border border-border bg-white shadow-lg text-[13px] text-gray-800 dark:bg-neutral-900 dark:text-neutral-200" style={{ maxWidth: "var(--invoice-doc-maxw, 48rem)", aspectRatio: "210/297" }}>
         {/* Header */}
         <div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-gray-100 dark:border-neutral-800">
           {/* Logo + company */}
           <div className="flex items-center gap-3">
-            <div
-              style={{ background: BRAND_GRADIENT }}
-              className="w-9 h-9 rounded-[9px] flex items-center justify-center text-white font-extrabold text-base flex-shrink-0"
-            >
-              F
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/fiskl-mark.svg" alt="fiskl" className="w-9 h-9 flex-shrink-0" />
             <div>
               <div className="font-bold text-[15px] text-gray-900 dark:text-white">Fiskl Demo Co.</div>
               <div className="text-xs text-gray-500 dark:text-neutral-400">demo@fiskl.com</div>
@@ -208,3 +204,4 @@ export function InvoicePreview({ invoice }: InvoicePreviewProps) {
     </div>
   );
 }
+
