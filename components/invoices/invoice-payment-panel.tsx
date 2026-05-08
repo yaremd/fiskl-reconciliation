@@ -3,12 +3,13 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { Invoice } from "@/types/invoices";
 import { calcInvoiceTotals, calcAmountDue, fmtCurrency, CURRENCY_SYMBOLS } from "@/types/invoices";
-import { Copy, Check, Pencil, AlertCircle, CheckCircle2, Building2 } from "lucide-react";
+import { Copy, Check, Pencil, AlertCircle, CheckCircle2, Building2, AlertCircleIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertTitle, AlertDescription, AlertAction } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 
 // ─── Payment method logos ──────────────────────────────────────────────────────
@@ -176,6 +177,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
   // Payment method state
   const [method, setMethod]       = useState<MethodId | null>(null);
   const [methodsOpen, setMethodsOpen] = useState(true);
+  const [paymentError, setPaymentError] = useState(false);
   const [cardForm, setCardForm]   = useState({ number: "", expiry: "", cvv: "", email: "" });
   const [bankNote, setBankNote]   = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -239,6 +241,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
 
   function handleProceed() {
     if (!method) { setShowError(true); return; }
+    if (method === "ideal") { setPaymentError(true); return; }
     setSubmitted(true);
   }
 
@@ -266,10 +269,30 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
   }
 
   return (
+    <>
+      {paymentError && (
+        <div className="fixed top-[76px] right-4 z-50 w-[380px]">
+          <Alert variant="destructive" className="bg-background shadow-xl">
+            <AlertCircleIcon />
+            <AlertTitle>Payment failed</AlertTitle>
+            <AlertDescription>
+              Your payment could not be processed. Please check your payment method and try again.
+            </AlertDescription>
+            <AlertAction>
+              <button
+                onClick={() => setPaymentError(false)}
+                className="p-0.5 rounded text-destructive/70 hover:text-destructive transition-colors"
+              >
+                <X size={15} />
+              </button>
+            </AlertAction>
+          </Alert>
+        </div>
+      )}
     <div className="flex flex-col gap-3">
 
       {/* ── Section 1: Amount due ── */}
-      <div className="rounded-xl border border-border bg-card shadow-sm px-5 pt-4 pb-4 space-y-3">
+      <div className="rounded-xl border border-border bg-card px-5 pt-4 pb-4 space-y-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
             Amount due
@@ -295,7 +318,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
       </div>
 
       {/* ── Section 2: Payment schedule ── */}
-      <div className="rounded-xl border border-border bg-card shadow-sm px-5 py-4 space-y-3">
+      <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-3">
         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Select payments
         </p>
@@ -400,7 +423,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
         </div>
 
         {/* Outstanding */}
-        <div className="flex items-center justify-between rounded-lg bg-muted/50 px-4 py-2.5">
+        <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">Outstanding</span>
           <span className={cn(
             "text-sm font-bold tabular-nums financial-number",
@@ -412,7 +435,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
       </div>
 
       {/* ── Section 3: Pay with ── */}
-      <div className="rounded-xl border border-border bg-card shadow-sm px-5 py-4 space-y-2">
+      <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Pay with
@@ -525,7 +548,7 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
       </div>
 
       {/* ── Section 4: Footer / CTA ── */}
-      <div className="rounded-xl border border-border bg-card shadow-sm px-5 py-4 space-y-3">
+      <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-3">
         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Summary
         </p>
@@ -535,7 +558,9 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
             {fmtCurrency(amountToPay, invoice.currency)}
           </span>
         </div>
-        <p className="text-xs text-muted-foreground">A single charge with no additional fees.</p>
+        <p className="text-[12px] text-muted-foreground rounded-lg bg-muted/50 px-4 py-2.5">
+          A single amount of {fmtCurrency(amountToPay, invoice.currency)} will be charged with no additional fees
+        </p>
 
         <Button onClick={handleProceed} className="w-full h-11 text-sm">
           {method === "bank" ? "Mark as paid" : "Proceed to payment"}
@@ -547,18 +572,9 @@ export function InvoicePaymentPanel({ invoice }: { invoice: Invoice }) {
             <span className="text-warning">Please select a payment method to proceed</span>
           </div>
         )}
-
-        <div className="text-center pt-0.5">
-          <p className="text-xs text-muted-foreground">
-            Interested in billing like this?{" "}
-            <a href="https://fiskl.com" target="_blank" rel="noopener noreferrer"
-              className="text-primary font-medium hover:underline underline-offset-2 transition-colors">
-              Try Fiskl free →
-            </a>
-          </p>
-        </div>
       </div>
 
     </div>
+    </>
   );
 }

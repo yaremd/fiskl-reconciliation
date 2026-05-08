@@ -185,3 +185,25 @@ input[type="number"] {
 ::-webkit-scrollbar-thumb:hover { background: var(--input); }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── shadcn Alert component ─────────────────────────────────────────────── */
+@layer components {
+  .cn-alert {
+    @apply grid gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4;
+  }
+  .cn-alert-variant-default {
+    @apply bg-card text-card-foreground;
+  }
+  .cn-alert-variant-destructive {
+    @apply text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current;
+  }
+  .cn-alert-title {
+    @apply font-medium group-has-[>svg]/alert:col-start-2;
+  }
+  .cn-alert-description {
+    @apply text-muted-foreground text-sm text-balance md:text-pretty;
+  }
+  .cn-alert-action {
+    @apply absolute top-2 right-2;
+  }
+}
