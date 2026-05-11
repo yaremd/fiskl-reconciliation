@@ -56,18 +56,7 @@ const NAV: MenuItem[] = [
   { title: "Products & Services", url: "#", icon: Package },
   { title: "Banking", url: "#", icon: Wallet },
   { title: "Team Members", url: "#", icon: Users },
-  {
-    title: "Settings", url: "/settings/accounting", icon: Settings,
-    submenu: [
-      { title: "Company Profile", url: "/settings/company" },
-      { title: "Accounting", url: "/settings/accounting" },
-      { title: "Currency Management", url: "/settings/currencies" },
-      { title: "Tax Management", url: "/settings/taxes" },
-      { title: "Invoice & Quote Settings", url: "/settings/invoices" },
-      { title: "Account", url: "/settings/account" },
-      { title: "Preferences", url: "/settings/preferences" },
-    ],
-  },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function NavMain() {
