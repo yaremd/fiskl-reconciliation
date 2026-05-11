@@ -38,6 +38,8 @@ export function SiteHeader({ accountId, periodId }: SiteHeaderProps) {
   const isInvoicesEdit = /^\/invoices\/[^/]+\/edit$/.test(pathname);
   const invoicesSubPage = isInvoicesNew ? "New Invoice" : isInvoicesEdit ? "Edit Invoice" : null;
 
+  const isBilling = pathname.startsWith("/billing") || pathname.startsWith("/settings/billing");
+
   // Build per-tab hrefs given the current context
   const tabHrefs = [
     "/reconciliation",
@@ -61,45 +63,51 @@ export function SiteHeader({ accountId, periodId }: SiteHeaderProps) {
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="h-4 mx-1" />
           <nav className="flex items-center gap-1 text-sm min-w-0">
-            <Link
-              href={isFixedAssets ? "/fixed-assets" : isInvoices ? "/invoices" : "/reconciliation"}
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground no-underline font-medium px-1.5 py-1 rounded-[var(--radius)] flex-shrink-0 transition-colors"
-            >
-              <span>{isInvoices ? "Sales" : "Accounting"}</span>
-            </Link>
-            <ChevronRight size={13} className="text-muted-foreground flex-shrink-0" />
-            {fixedAssetsSubPage ? (
-              <>
-                <Link
-                  href="/fixed-assets"
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground no-underline px-1.5 py-1 rounded-[var(--radius)] flex-shrink-0 transition-colors"
-                >
-                  Fixed Assets
-                </Link>
-                <ChevronRight size={13} className="text-muted-foreground flex-shrink-0" />
-                <span className="text-sm font-semibold text-foreground truncate">{fixedAssetsSubPage}</span>
-              </>
-            ) : invoicesSubPage ? (
-              <>
-                <Link
-                  href="/invoices"
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground no-underline px-1.5 py-1 rounded-[var(--radius)] flex-shrink-0 transition-colors"
-                >
-                  Invoices
-                </Link>
-                <ChevronRight size={13} className="text-muted-foreground flex-shrink-0" />
-                <span className="text-sm font-semibold text-foreground truncate">{invoicesSubPage}</span>
-              </>
+            {isBilling ? (
+              <span className="text-sm font-semibold text-foreground">Subscriptions</span>
             ) : (
-              <span className="text-sm font-semibold text-foreground truncate">
-                {isFixedAssets ? "Fixed Assets" : isInvoices ? "Invoices" : "Reconciliation"}
-              </span>
+              <>
+                <Link
+                  href={isFixedAssets ? "/fixed-assets" : isInvoices ? "/invoices" : "/reconciliation"}
+                  className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground no-underline font-medium px-1.5 py-1 rounded-[var(--radius)] flex-shrink-0 transition-colors"
+                >
+                  <span>{isInvoices ? "Sales" : "Accounting"}</span>
+                </Link>
+                <ChevronRight size={13} className="text-muted-foreground flex-shrink-0" />
+                {fixedAssetsSubPage ? (
+                  <>
+                    <Link
+                      href="/fixed-assets"
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground no-underline px-1.5 py-1 rounded-[var(--radius)] flex-shrink-0 transition-colors"
+                    >
+                      Fixed Assets
+                    </Link>
+                    <ChevronRight size={13} className="text-muted-foreground flex-shrink-0" />
+                    <span className="text-sm font-semibold text-foreground truncate">{fixedAssetsSubPage}</span>
+                  </>
+                ) : invoicesSubPage ? (
+                  <>
+                    <Link
+                      href="/invoices"
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground no-underline px-1.5 py-1 rounded-[var(--radius)] flex-shrink-0 transition-colors"
+                    >
+                      Invoices
+                    </Link>
+                    <ChevronRight size={13} className="text-muted-foreground flex-shrink-0" />
+                    <span className="text-sm font-semibold text-foreground truncate">{invoicesSubPage}</span>
+                  </>
+                ) : (
+                  <span className="text-sm font-semibold text-foreground truncate">
+                    {isFixedAssets ? "Fixed Assets" : isInvoices ? "Invoices" : "Reconciliation"}
+                  </span>
+                )}
+              </>
             )}
           </nav>
         </div>
 
         {/* Center: workflow tabs — reconciliation only */}
-        {!isFixedAssets && !isInvoices && (
+        {!isFixedAssets && !isInvoices && !isBilling && (
         <div className="flex gap-px bg-muted rounded-[var(--radius)] p-[3px] flex-shrink-0">
           {TABS.map((tab, i) => {
             const href = tabHrefs[i];

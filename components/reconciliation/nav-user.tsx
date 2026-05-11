@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   CreditCard, HelpCircle, Key, Layers, LogOut,
   MoreVertical, Shield, SlidersHorizontal, User,
@@ -64,7 +65,9 @@ export function NavUser() {
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem><CreditCard className="mr-2 h-4 w-4" />Subscriptions &amp; Billing</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/billing"><CreditCard className="mr-2 h-4 w-4" />Subscriptions &amp; Billing</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem><Layers className="mr-2 h-4 w-4" />Integrations</DropdownMenuItem>
               <DropdownMenuItem><Shield className="mr-2 h-4 w-4" />External Access</DropdownMenuItem>
               <DropdownMenuItem><Key className="mr-2 h-4 w-4" />API Access</DropdownMenuItem>
